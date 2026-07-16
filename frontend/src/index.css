@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Google Font (fallback if CDN unavailable) ──────────────────────────────── */
+
+/* ── CSS Custom Properties ───────────────────────────────────────────────────
+   Using variables on top of Tailwind for easy theming in component CSS.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --color-maroon:       #6B1E1E;
+  --color-maroon-dark:  #4A1515;
+  --color-maroon-light: #8B2E2E;
+  --color-gold:         #C9A84C;
+  --color-gold-light:   #DFC070;
+  --color-gold-dark:    #A87D30;
+  --color-navy:         #1A2744;
+  --color-navy-light:   #243460;
+  --color-surface:      #FAFAFA;
+  --color-surface-card: #FFFFFF;
+  --color-border:       #E5E7EB;
+  --color-text-primary: #111827;
+  --color-text-muted:   #6B7280;
+}
+
+/* ── Base Resets ─────────────────────────────────────────────────────────────*/
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar Styling ───────────────────────────────────────────────────────*/
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9CA3AF;
+}
+
+/* ── Reusable Component Classes ─────────────────────────────────────────────*/
+@layer components {
+  /* Card container */
+  .card {
+    @apply bg-white border border-gray-100 rounded-lg shadow-card;
+  }
+
+  /* Primary button — maroon bg */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors duration-150 rounded-md bg-maroon-800 hover:bg-maroon-900 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Secondary button — outlined */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-150 bg-white border rounded-md text-maroon-800 border-maroon-800 hover:bg-maroon-50 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Gold accent button */
+  .btn-gold {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium transition-colors duration-150 rounded-md text-maroon-900 bg-gold-400 hover:bg-gold-500 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Input field */
+  .input-field {
+    @apply w-full px-3 py-2 text-sm text-gray-900 placeholder-gray-400 transition duration-150 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-maroon-800 focus:border-transparent;
+  }
+
+  /* Section header */
+  .section-header {
+    @apply mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase;
+  }
+}
+
+/* ── Utility: Typing cursor animation ────────────────────────────────────────*/
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.cursor-blink::after {
+  content: '▌';
+  animation: blink 1s step-start infinite;
+  color: var(--color-maroon);
+  font-size: 0.85em;
+}
+
+/* ── Utility: Loading dots ───────────────────────────────────────────────────*/
+.loading-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-maroon);
+  animation: pulseDot 1.4s ease-in-out infinite;
+}
+.loading-dot:nth-child(2) { animation-delay: 0.2s; }
+.loading-dot:nth-child(3) { animation-delay: 0.4s; }
