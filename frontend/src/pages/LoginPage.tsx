@@ -39,26 +39,26 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex min-h-screen">
       {/* Left panel — brand */}
-      <div className="hidden lg:flex flex-col justify-between w-2/5 bg-maroon-800 px-12 py-10">
+      <div className="flex-col justify-between hidden w-2/5 px-12 py-10 lg:flex bg-maroon-800">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-md bg-gold-400 flex items-center justify-center">
-            <BookOpen className="h-5 w-5 text-maroon-900" />
+          <div className="flex items-center justify-center rounded-md h-9 w-9 bg-gold-400">
+            <BookOpen className="w-5 h-5 text-maroon-900" />
           </div>
           <div>
-            <p className="text-base font-bold text-white leading-none">College Portal</p>
+            <p className="text-base font-bold leading-none text-white">College Portal</p>
             <p className="text-xs text-maroon-200 mt-0.5">Information & AI Assistant</p>
           </div>
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold text-white leading-tight">
+          <h1 className="text-3xl font-bold leading-tight text-white">
             Your personalized
             <br />
             college hub.
           </h1>
-          <p className="mt-4 text-maroon-200 text-sm leading-relaxed max-w-xs">
+          <p className="max-w-xs mt-4 text-sm leading-relaxed text-maroon-200">
             Stay on top of exams, events, and announcements — filtered specifically for your department and year.
           </p>
 
@@ -82,22 +82,22 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel — form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-white">
+      <div className="flex items-center justify-center flex-1 px-6 py-12 bg-white">
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2.5 mb-8">
-            <div className="h-8 w-8 rounded-md bg-maroon-800 flex items-center justify-center">
-              <BookOpen className="h-4 w-4 text-white" />
+            <div className="flex items-center justify-center w-8 h-8 rounded-md bg-maroon-800">
+              <BookOpen className="w-4 h-4 text-white" />
             </div>
             <p className="text-sm font-semibold text-gray-900">College Portal</p>
           </div>
 
-          <h2 className="text-xl font-semibold text-gray-900 mb-1">Sign in</h2>
-          <p className="text-sm text-gray-500 mb-6">Use your student ID and portal password.</p>
+          <h2 className="mb-1 text-xl font-semibold text-gray-900">Sign in</h2>
+          <p className="mb-6 text-sm text-gray-500">Use your student ID and portal password.</p>
 
           {/* Error */}
           {error && (
-            <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200 text-red-700 text-sm animate-fade-in">
+            <div className="p-3 mb-4 text-sm text-red-700 border border-red-200 rounded-md bg-red-50 animate-fade-in">
               {error}
             </div>
           )}
@@ -105,7 +105,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Student ID */}
             <div>
-              <label htmlFor="student-id" className="block text-xs font-medium text-gray-700 mb-1">
+              <label htmlFor="student-id" className="block mb-1 text-xs font-medium text-gray-700">
                 Student ID / Username
               </label>
               <input
@@ -122,7 +122,7 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="login-password" className="block text-xs font-medium text-gray-700 mb-1">
+              <label htmlFor="login-password" className="block mb-1 text-xs font-medium text-gray-700">
                 Password
               </label>
               <div className="relative">
@@ -134,32 +134,32 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="input-field pr-10"
+                  className="pr-10 input-field"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPwd((v) => !v)}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 transition-colors hover:text-gray-600"
                   aria-label={showPwd ? 'Hide password' : 'Show password'}
                 >
-                  {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
-            <button type="submit" disabled={isLoading} className="btn-primary w-full mt-2">
+            <button type="submit" disabled={isLoading} className="w-full mt-2 btn-primary">
               {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
-          <p className="mt-6 text-xs text-gray-400 text-center">
+          <p className="mt-6 text-xs text-center text-gray-400">
             Having trouble? Contact your department admin.
           </p>
 
           {/* Demo hint */}
-          <div className="mt-6 p-3 rounded-md bg-gray-50 border border-gray-200">
-            <p className="text-xs font-medium text-gray-600 mb-1">Demo credentials</p>
-            <div className="space-y-1 text-xs text-gray-500 font-mono">
+          <div className="p-3 mt-6 border border-gray-200 rounded-md bg-gray-50">
+            <p className="mb-1 text-xs font-medium text-gray-600">Demo credentials</p>
+            <div className="space-y-1 font-mono text-xs text-gray-500">
               <p>Student: CS2024001 / student123</p>
               <p>Admin: &nbsp; admin001 &nbsp; / admin@portal</p>
             </div>
