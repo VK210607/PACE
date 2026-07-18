@@ -1,11 +1,19 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional,Union
 from enum import Enum
 
 
 class LoginPayload(BaseModel):
-    student_id: str
+    student_id: Union[str,int]
     password: str
+
+class SignupPayload(BaseModel):
+    student_id: Union[str,int]
+    password: str
+    role: str
+    full_name: str
+    department: Optional[str] = None
+    year: Optional[int] = None
 
 class Response(BaseModel):
     access_token: str

@@ -3,7 +3,7 @@
 // Split-panel login page with maroon left panel and clean white form on right.
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BookOpen, Eye, EyeOff } from 'lucide-react';
 import { login } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
@@ -152,8 +152,14 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-xs text-center text-gray-400">
-            Having trouble? Contact your department admin.
+          <p className="mt-4 text-sm text-center text-gray-500">
+            Don&apos;t have an account?{' '}
+            <Link
+              to="/signup"
+              className="font-medium text-maroon-800 hover:underline"
+            >
+              Sign up
+            </Link>
           </p>
 
           {/* Demo hint */}
