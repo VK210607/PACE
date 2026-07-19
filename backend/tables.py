@@ -16,3 +16,13 @@ class User(Base):
     dept= Column(String, nullable=True) 
     year= Column(String, nullable=True)
 
+class Events(Base):
+    __tablename__ = "events"
+
+    id = Column(String, primary_key=True, nullable=False,default=lambda: generate_uuid())
+    title = Column(String, nullable=False)
+    event_date = Column(String, nullable=False)
+    category = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    target_year= Column(String, nullable=True)
+    target_dept= Column(String, nullable=True)

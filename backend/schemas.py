@@ -24,3 +24,12 @@ class Response(BaseModel):
     year: Optional[int] = None
     user_id: str
     
+class EventPayload(BaseModel):
+    title: str
+    event_date: str
+    category: str
+    description: Optional[str] = None
+    target_year: Optional[int] = None
+    target_dept: Optional[str] = 'ALL'
+
+

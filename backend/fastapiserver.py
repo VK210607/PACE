@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from jose import jwt,JWTError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends, FastAPI, HTTPException,status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from requests import Session
 import schemas,tables
@@ -13,6 +14,7 @@ app=FastAPI()
 
 tables.Base.metadata.create_all(bind=engine)
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 SECRET_KEY = "r3G7ECaFcMXEISc5QYe/X5hyP4nH9Tyz18yBxZjazRY="
 ALGORITHM = 'HS256'
 EXPIRATION_MINUTES = 60
@@ -85,3 +87,23 @@ def signup_page(payload:schemas.SignupPayload,db:Session=Depends(get_db)):
         "year": int(new_user.year) if new_user.year is not None else None,
         "user_id": str(new_user.id)
     }
+
+@app.post('/api/admin/create-event', response_model=schemas.EventPayload, status_code=status.HTTP_201_CREATED)
+def create_event(payload: schemas.EventPayload, db: Session = Depends(get_db)):
+    new_event = tables.Events(
+        title=payload.title,
+        event_date=payload.event_date,
+        category=payload.category,
+        description=payload.description,
+        target_year=payload.target_year,
+        target_dept=payload.target_dept
+    )
+    db.add(new_event)
+    db.commit()
+    db.refresh(new_event)
+    return new_event
+
+@app.get('/api/events/feed', response_model=list[schemas.EventPayload], status_code=status.HTTP_200_OK)
+def get_events(db: Session = Depends(get_db)):
+    events = db.query(tables.Events).all()
+    return events
