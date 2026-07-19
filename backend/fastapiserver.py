@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from turtle import title
 from jose import jwt,JWTError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends, FastAPI, HTTPException,status
@@ -107,3 +108,10 @@ def create_event(payload: schemas.EventPayload, db: Session = Depends(get_db)):
 def get_events(db: Session = Depends(get_db)):
     events = db.query(tables.Events).all()
     return events
+
+@app.get('/api/events/search', response_model=list[schemas.EventPayload], status_code=status.HTTP_200_OK)
+def get_event(q: str, db: Session = Depends(get_db)):
+    event = db.query(tables.Events).filter(tables.Events.title.contains(q)).all()
+    if not event:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
+    return event
