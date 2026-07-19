@@ -115,3 +115,5 @@ def get_event(q: str, db: Session = Depends(get_db)):
     if not event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
     return event
+
+
