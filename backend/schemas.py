@@ -31,5 +31,6 @@ class EventPayload(BaseModel):
     description: Optional[str] = None
     target_year: Optional[int] = None
     target_dept: Optional[str] = 'ALL'
+    embedding: Optional[list[float]] = None
 
 

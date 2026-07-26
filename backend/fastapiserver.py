@@ -6,6 +6,7 @@ from fastapi import Depends, FastAPI, HTTPException,status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from requests import Session
+import ai_utils
 import schemas,tables
 from database import engine
 from database import get_db
@@ -91,13 +92,16 @@ def signup_page(payload:schemas.SignupPayload,db:Session=Depends(get_db)):
 
 @app.post('/api/admin/create-event', response_model=schemas.EventPayload, status_code=status.HTTP_201_CREATED)
 def create_event(payload: schemas.EventPayload, db: Session = Depends(get_db)):
+    combined_text = f"Title: {payload.title}. Date: {payload.event_date}. Category: {payload.category}. Description: {payload.description}. Target Year: {payload.target_year}. Target Dept: {payload.target_dept}."
+    vector_math = ai_utils.generate_vector(combined_text)
     new_event = tables.Events(
         title=payload.title,
         event_date=payload.event_date,
         category=payload.category,
         description=payload.description,
         target_year=payload.target_year,
-        target_dept=payload.target_dept
+        target_dept=payload.target_dept,
+        embedding=vector_math
     )
     db.add(new_event)
     db.commit()

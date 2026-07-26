@@ -1,6 +1,7 @@
 from database import Base
 from sqlalchemy import Column, Integer, String
 import uuid
+from pgvector.sqlalchemy import Vector
 
 def generate_uuid():
     return str(uuid.uuid4())
@@ -26,3 +27,4 @@ class Events(Base):
     description = Column(String, nullable=True)
     target_year= Column(String, nullable=True)
     target_dept= Column(String, nullable=True)
+    embedding = Column(Vector(768), nullable=True)  
