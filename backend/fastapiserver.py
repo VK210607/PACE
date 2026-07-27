@@ -11,6 +11,7 @@ import schemas,tables
 from database import engine
 from database import get_db
 from passlib.context import CryptContext
+from sqlalchemy import select
 
 app=FastAPI()
 
@@ -120,4 +121,15 @@ def get_event(q: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
     return event
 
+@app.post('/api/chat/query', status_code=status.HTTP_200_OK)
+def chat_query(payload:schemas.QueryPayload, db: Session = Depends(get_db)):
+    vector_query=ai_utils.generate_vector(payload.query)
+    search_algorithm =(
+        select(tables.Events)
+        .order_by(tables.Events.embedding.cosine_distance(vector_query))
+        .limit(5)
+    )
 
+    results=db.scalars(search_algorithm).all()
+    print(results)
+    return {'detail': results}

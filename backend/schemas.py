@@ -33,4 +33,7 @@ class EventPayload(BaseModel):
     target_dept: Optional[str] = 'ALL'
     embedding: Optional[list[float]] = None
 
+class QueryPayload(BaseModel):
+    query: str
+
 
