@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import os
 from turtle import title
 from jose import jwt,JWTError
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,7 +7,7 @@ from fastapi import Depends, FastAPI, HTTPException,status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import BaseModel
 from requests import Session
-import ai_utils
+import ai_utils,auth
 import schemas,tables
 from database import engine
 from database import get_db
@@ -18,7 +19,7 @@ app=FastAPI()
 tables.Base.metadata.create_all(bind=engine)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-SECRET_KEY = "r3G7ECaFcMXEISc5QYe/X5hyP4nH9Tyz18yBxZjazRY="
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = 'HS256'
 EXPIRATION_MINUTES = 60
 
@@ -92,7 +93,7 @@ def signup_page(payload:schemas.SignupPayload,db:Session=Depends(get_db)):
     }
 
 @app.post('/api/admin/create-event', response_model=schemas.EventPayload, status_code=status.HTTP_201_CREATED)
-def create_event(payload: schemas.EventPayload, db: Session = Depends(get_db)):
+def create_event(payload: schemas.EventPayload, db: Session = Depends(get_db),user_id: str = Depends(auth.verify_jwt)):
     combined_text = f"Title: {payload.title}. Date: {payload.event_date}. Category: {payload.category}. Description: {payload.description}. Target Year: {payload.target_year}. Target Dept: {payload.target_dept}."
     vector_math = ai_utils.generate_vector(combined_text)
     new_event = tables.Events(
@@ -110,19 +111,19 @@ def create_event(payload: schemas.EventPayload, db: Session = Depends(get_db)):
     return new_event
 
 @app.get('/api/events/feed', response_model=list[schemas.EventPayload], status_code=status.HTTP_200_OK)
-def get_events(db: Session = Depends(get_db)):
+def get_events(db: Session = Depends(get_db),user_id: str = Depends(auth.verify_jwt)):
     events = db.query(tables.Events).all()
     return events
 
 @app.get('/api/events/search', response_model=list[schemas.EventPayload], status_code=status.HTTP_200_OK)
-def get_event(q: str, db: Session = Depends(get_db)):
+def get_event(q: str, db: Session = Depends(get_db),user_id: str = Depends(auth.verify_jwt)):
     event = db.query(tables.Events).filter(tables.Events.title.contains(q)).all()
     if not event:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Event not found")
     return event
 
 @app.post('/api/chat/query', status_code=status.HTTP_200_OK)
-def chat_query(payload:schemas.QueryPayload, db: Session = Depends(get_db)):
+def chat_query(payload:schemas.QueryPayload, db: Session = Depends(get_db),user_id: str = Depends(auth.verify_jwt)):
     vector_query=ai_utils.generate_vector(payload.query)
     search_algorithm =(
         select(tables.Events)
