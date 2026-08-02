@@ -59,13 +59,31 @@ export default function ChatDrawer({ isOpen, onClose }: Props) {
 
     try {
       const token = localStorage.getItem('access_token');
+
+      // Build conversation history from the current messages state.
+      // At this point in execution, React state still holds the messages
+      // BEFORE the setMessages calls above resolved, so `messages` is the
+      // prior history — it does NOT yet include the new userMsg or the
+      // empty placeholder assistantMsg.
+      //
+      // Steps:
+      //   1. Filter out any message with empty content (safety net for
+      //      any stale placeholder that may linger in state).
+      //   2. Strip UI-only keys (id, isStreaming) — send only role + content.
+      //   3. Append the new user turn at the end.
+      const history = messages
+        .filter((m) => m.content.trim() !== '')
+        .map(({ role, content }) => ({ role, content }));
+
+      history.push({ role: 'user' as const, content: query });
+
       const response = await fetch('/api/chat/query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ messages: history }),
       });
 
       if (!response.ok) {

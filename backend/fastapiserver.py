@@ -123,8 +123,8 @@ def get_event(q: str, db: Session = Depends(get_db),user_id: str = Depends(auth.
     return event
 
 @app.post('/api/chat/query', status_code=status.HTTP_200_OK)
-def chat_query(payload:schemas.QueryPayload, db: Session = Depends(get_db),user_id: str = Depends(auth.verify_jwt)):
-    vector_query=ai_utils.generate_vector(payload.query)
+def chat_query(payload:schemas.ChatRequest, db: Session = Depends(get_db),user_id: str = Depends(auth.verify_jwt)):
+    vector_query=ai_utils.generate_vector(payload.messages[-1].content)
     search_algorithm =(
         select(tables.Events)
         .order_by(tables.Events.embedding.cosine_distance(vector_query))
@@ -132,7 +132,8 @@ def chat_query(payload:schemas.QueryPayload, db: Session = Depends(get_db),user_
     )
 
     results=db.scalars(search_algorithm).all()
+    student_details=db.query(tables.User).filter(tables.User.student_id==user_id).first()
     if not results:
         return {"reply": "I couldn't find any specific college events matching your request."}
-    ai_response=ai_utils.generate_answer(payload.query,results)
+    ai_response=ai_utils.generate_answer(payload.messages,results,student_details)
     return {"reply": ai_response} 

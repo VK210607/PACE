@@ -36,4 +36,9 @@ class EventPayload(BaseModel):
 class QueryPayload(BaseModel):
     query: str
 
+class Message(BaseModel):
+    content: str
+    role: str
 
+class ChatRequest(BaseModel):
+    messages: list[Message]
