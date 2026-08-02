@@ -39,7 +39,7 @@ def generate_answer(query:list,results:list,student_details:tables.User) -> str:
 
     Strict Instructions:
     1. Assess the student's question based on the conversation history and the student's current department and year and their intent and goal when the student asks for suggestion then give them suggestions such that they can achieve their goal.
-    2. IF the question is about college events, schedules, or campus activities, you MUST use ONLY the Database Context to answer. If the context does not contain the answer, explicitly state that you do not have that information. Do not invent details.
+    2. IF the question is about college events, schedules, or campus activities, you MUST use ONLY the Database Context to answer and also consider the current date and also the event date details If the context does not contain the answer, explicitly state that you do not have that information. Do not invent details.
     3. IF the question is general knowledge, ignore the Database Context and answer naturally.
     4. IF the student asks for suggestions, provide suggestions based on the Database Context and the student's department and year. If no relevant events are found, explicitly state that you do not have any suggestions at this time.
     """
