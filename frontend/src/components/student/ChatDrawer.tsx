@@ -1,7 +1,8 @@
 // src/components/student/ChatDrawer.tsx
 // ─────────────────────────────────────────────────────────────────────────────
-// Sliding chat panel with SSE streaming support.
-// Consumes the /api/chat/query endpoint via fetch + ReadableStream.
+// Sliding chat panel.
+// Consumes the /api/chat/query endpoint — standard single-shot JSON response.
+// Backend returns: { "reply": "The full AI response string." }
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Bot, Send, X } from 'lucide-react';
@@ -51,7 +52,7 @@ export default function ChatDrawer({ isOpen, onClose }: Props) {
     const userMsg: ChatMessage = { id: nextId(), role: 'user', content: query };
     setMessages((prev) => [...prev, userMsg]);
 
-    // Add placeholder assistant message (streaming target)
+    // Add placeholder assistant message (shows typing indicator while waiting)
     const assistantId = nextId();
     const assistantMsg: ChatMessage = { id: assistantId, role: 'assistant', content: '', isStreaming: true };
     setMessages((prev) => [...prev, assistantMsg]);
@@ -67,61 +68,20 @@ export default function ChatDrawer({ isOpen, onClose }: Props) {
         body: JSON.stringify({ query }),
       });
 
-      if (!response.ok || !response.body) {
+      if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
 
-      // Read the SSE stream
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
+      // Standard single-shot JSON parse — backend returns { "reply": "..." }
+      const data = await response.json() as { reply: string };
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const jsonStr = line.slice(6).trim();
-          if (!jsonStr) continue;
-
-          try {
-            const parsed = JSON.parse(jsonStr) as { token?: string; done?: boolean; error?: string };
-
-            if (parsed.error) {
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId
-                    ? { ...m, content: `Error: ${parsed.error}`, isStreaming: false }
-                    : m
-                )
-              );
-              break;
-            }
-
-            if (parsed.done) {
-              setMessages((prev) =>
-                prev.map((m) => (m.id === assistantId ? { ...m, isStreaming: false } : m))
-              );
-              break;
-            }
-
-            if (parsed.token) {
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId ? { ...m, content: m.content + parsed.token } : m
-                )
-              );
-            }
-          } catch {
-            // Malformed JSON chunk — skip
-          }
-        }
-      }
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantId
+            ? { ...m, content: data.reply, isStreaming: false }
+            : m
+        )
+      );
     } catch (err) {
       setMessages((prev) =>
         prev.map((m) =>
@@ -151,7 +111,7 @@ export default function ChatDrawer({ isOpen, onClose }: Props) {
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/20 z-30 lg:hidden"
+          className="fixed inset-0 z-30 bg-black/20 lg:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -169,7 +129,7 @@ export default function ChatDrawer({ isOpen, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3.5 border-b border-gray-100 bg-maroon-800">
           <div className="flex items-center gap-2.5">
-            <div className="h-8 w-8 rounded-full bg-white/15 flex items-center justify-center">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white/15">
               <Bot className="h-4.5 w-4.5 text-white" />
             </div>
             <div>
@@ -182,19 +142,19 @@ export default function ChatDrawer({ isOpen, onClose }: Props) {
             className="p-1.5 rounded-md text-white/70 hover:text-white hover:bg-white/10 transition-colors"
             aria-label="Close chat"
           >
-            <X className="h-4 w-4" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Disclaimer banner */}
-        <div className="px-4 py-2 bg-amber-50 border-b border-amber-100">
+        <div className="px-4 py-2 border-b bg-amber-50 border-amber-100">
           <p className="text-xs text-amber-700">
             ⚠️ This assistant only answers from verified college records. Always confirm critical dates with your department.
           </p>
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        <div className="flex-1 px-4 py-4 space-y-4 overflow-y-auto">
           {messages.map((msg) => (
             <ChatMessageComponent key={msg.id} message={msg} />
           ))}
@@ -213,17 +173,15 @@ export default function ChatDrawer({ isOpen, onClose }: Props) {
               onKeyDown={handleKeyDown}
               placeholder="Ask about exams, events, workshops..."
               disabled={isSending}
-              className="input-field flex-1 text-sm"
+              className="flex-1 text-sm input-field"
             />
             <button
               onClick={sendMessage}
               disabled={!input.trim() || isSending}
-              className="flex-shrink-0 h-9 w-9 flex items-center justify-center rounded-md
-                         bg-maroon-800 text-white hover:bg-maroon-900 transition-colors
-                         disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex items-center justify-center flex-shrink-0 text-white transition-colors rounded-md h-9 w-9 bg-maroon-800 hover:bg-maroon-900 disabled:opacity-40 disabled:cursor-not-allowed"
               aria-label="Send message"
             >
-              <Send className="h-4 w-4" />
+              <Send className="w-4 h-4" />
             </button>
           </div>
         </div>

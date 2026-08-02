@@ -131,5 +131,7 @@ def chat_query(payload:schemas.QueryPayload, db: Session = Depends(get_db)):
     )
 
     results=db.scalars(search_algorithm).all()
-    print(results)
-    return {'detail': results}
+    if not results:
+        return {"reply": "I couldn't find any specific college events matching your request."}
+    ai_response=ai_utils.generate_answer(payload.query,results)
+    return {"reply": ai_response} 
